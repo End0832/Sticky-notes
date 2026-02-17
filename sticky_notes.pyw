@@ -1,4 +1,4 @@
-### Sticky notes v.2.0
+### Sticky notes v.2.1
 ### Made by End0832_
 ### You are free to use it and fork it in any way you want
 
@@ -44,7 +44,7 @@ class Utils():
             return rgb_bg_color, rgb_bd_color, hex_bg_color, hex_bd_color
 
 class StickyNote(qw.QTextEdit, Utils):
-    def __init__(self, color):
+    def __init__(self, color, splash):
         super().__init__()
         self.resize(300, 350)
         self.rgb_bg_color, self.rgb_bd_color, self.hex_bg_color, self.hex_bd_color = self.get_color_values(color, "all")
@@ -52,11 +52,13 @@ class StickyNote(qw.QTextEdit, Utils):
         self.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
         self.setContextMenuPolicy(qc.Qt.NoContextMenu)
         self.setCursorWidth(3)
+        self.setPlainText(splash)
         self.setWindowFlags(
             qc.Qt.FramelessWindowHint |
             qc.Qt.WindowStaysOnTopHint |
             qc.Qt.Tool
         )
+        self.first_clic = True
         self.lock = False
         
     def link_with_pair(self, pair):
@@ -89,6 +91,9 @@ class StickyNote(qw.QTextEdit, Utils):
             self.update()
         else:
             super().mousePressEvent(event)
+        if self.first_clic:
+            self.setPlainText("")
+            self.first_clic = False
 
     def mouseMoveEvent(self, event):
         if self.lock:
@@ -151,17 +156,23 @@ class Bubble(qw.QWidget, Utils):
         if (event.button() == qc.Qt.LeftButton or event.button() == qc.Qt.RightButton) and self.is_on_border():
             self.move(qg.QCursor.pos().x() - 28, qg.QCursor.pos().y() - 28)
 
-def main(color):
-    sticky_note = StickyNote(color)
+def main(color, splash):
+    sticky_note = StickyNote(color, splash)
     bubble = Bubble(color)
     sticky_note.link_with_pair(bubble)
     bubble.link_with_pair(sticky_note)
     sticky_note.show()
     return sticky_note, bubble
 
+try:
+    with open("splashes.txt", "r", encoding="utf-8") as f:
+        splashes = f.readlines()
+except FileNotFoundError:
+    splashes = ["Enter text..."]
+
 color = [(255, 255, 255), (255, 251, 125), (213, 74, 73), (138, 211, 127), (89, 162, 188), (161, 113, 170)]
 
 app = qw.QApplication([])
-_ = main(color[random.randint(0, len(color) - 1)])
+_ = main(color[random.randint(0, len(color) - 1)], splashes[random.randint(0, len(splashes) - 1)])
 
 app.exec()
