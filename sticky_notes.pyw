@@ -1,4 +1,4 @@
-### Sticky notes v.2.1
+### Sticky notes v.2.2
 ### Made by End0832_
 ### You are free to use it and fork it in any way you want
 
@@ -169,10 +169,18 @@ try:
         splashes = f.readlines()
 except FileNotFoundError:
     splashes = ["Enter text..."]
+splash = splashes[random.randint(0, len(splashes) - 1)]
 
-color = [(255, 255, 255), (255, 251, 125), (213, 74, 73), (138, 211, 127), (89, 162, 188), (161, 113, 170)]
+try:
+    with open("colors.txt", "r", encoding="utf-8") as f:
+        colors = f.readlines()
+except FileNotFoundError:
+    colors = ["(255, 255, 255)"]
+color = colors[random.randint(0, len(colors) - 1)]
+r, g, b = map(int, color.strip("(").strip("\n").strip(")").split(","))
+color = (int(r), int(g), int(b))
 
 app = qw.QApplication([])
-_ = main(color[random.randint(0, len(color) - 1)], splashes[random.randint(0, len(splashes) - 1)])
+_ = main(color, splash)
 
 app.exec()
